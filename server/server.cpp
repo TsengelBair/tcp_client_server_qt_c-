@@ -1,6 +1,9 @@
 #include "server.h"
 #include "packethandler.h"
+#include "packetbuilder.h"
 #include "structs.h"
+#include "serializer.h"
+#include "postgresdb.h"
 
 #include <QTcpSocket>
 #include <QDataStream>
@@ -74,10 +77,22 @@ void Server::slotProccesBuffer(qintptr socketDescriptor)
         uint8_t expectedCrc = PacketHandler::extractCrcFromPacket(fullPacket);
         uint8_t factualCrc = PacketHandler::calcCrc(fullPacket.mid(6));
 
+        /// произошло искажение, отправляем соответствующее сообщение в очищаем буффер полностью
         if (expectedCrc != factualCrc) {
             slotSendCrcError(socketDescriptor);
             buffer.remove(0, totalPacketSize);
             return;
+        }
+
+        MessageType::RequestType requestType = PacketHandler::extractRequestTypeFromPacket(fullPacket);
+        switch(requestType) {
+            case MessageType::RequestType::REQUEST_REGISTR:
+                slotHandleRegisterRequest(fullPacket.mid(6), socketDescriptor);
+                break;
+
+            case MessageType::RequestType::REQUEST_LOGIN:
+                slotHandleAuthRequest(fullPacket.mid(6), socketDescriptor);
+                break;
         }
     }
 }
@@ -109,6 +124,24 @@ void Server::slotSendToClient(const QByteArray &packet,qintptr socketDescriptor)
     }
 
     m_sockets[socketDescriptor]->write(packet);
+}
+
+void Server::slotHandleRegisterRequest(const QByteArray &packetData, qintptr socketDescriptor)
+{
+    QPair<QString, QString> credentials = Serializer::deserializeAuthRequest(packetData);
+    QPair<Db::RegisterStatus, int> dbResponse = m_db.registerUser(credentials.first, credentials.second);
+    QByteArray serializedResponse = Serializer::serializeRegisterResponse(dbResponse);
+    QByteArray packet = PacketBuilder::createPacket(serializedResponse, MessageType::RESPONSE_REGISTR);
+    slotSendToClient(packet, socketDescriptor);
+}
+
+void Server::slotHandleAuthRequest(const QByteArray &packetData, qintptr socketDescriptor)
+{
+    QPair<QString, QString> credentials = Serializer::deserializeAuthRequest(packetData);
+    QPair<Db::AuthStatus, int> dbResponse = m_db.authUser(credentials.first, credentials.second);
+    QByteArray serializedResponse = Serializer::serializeAuthResponse(dbResponse);
+    QByteArray packet = PacketBuilder::createPacket(serializedResponse, MessageType::RESPONSE_LOGIN);
+    slotSendToClient(packet, socketDescriptor);
 }
 
 bool Server::isConnected(qintptr socketDescriptor) const

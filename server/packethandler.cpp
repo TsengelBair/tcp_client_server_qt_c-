@@ -26,3 +26,8 @@ uint8_t PacketHandler::calcCrc(const QByteArray &packetData)
 
     return crc;
 }
+
+MessageType::RequestType PacketHandler::extractRequestTypeFromPacket(const QByteArray &packet)
+{
+    return static_cast<MessageType::RequestType>(packet.at(5));
+}

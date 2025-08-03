@@ -174,23 +174,9 @@ class IAuthResponse final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 2,
     kStatusCodeFieldNumber = 1,
+    kIdFieldNumber = 2,
   };
-  // string id = 2;
-  void clear_id();
-  const std::string& id() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_id(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_id();
-  PROTOBUF_NODISCARD std::string* release_id();
-  void set_allocated_id(std::string* id);
-  private:
-  const std::string& _internal_id() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_id(const std::string& value);
-  std::string* _internal_mutable_id();
-  public:
-
   // int32 status_code = 1;
   void clear_status_code();
   int32_t status_code() const;
@@ -198,6 +184,15 @@ class IAuthResponse final :
   private:
   int32_t _internal_status_code() const;
   void _internal_set_status_code(int32_t value);
+  public:
+
+  // int32 id = 2;
+  void clear_id();
+  int32_t id() const;
+  void set_id(int32_t value);
+  private:
+  int32_t _internal_id() const;
+  void _internal_set_id(int32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:IAuthResponse)
@@ -208,8 +203,8 @@ class IAuthResponse final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
     int32_t status_code_;
+    int32_t id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -246,54 +241,24 @@ inline void IAuthResponse::set_status_code(int32_t value) {
   // @@protoc_insertion_point(field_set:IAuthResponse.status_code)
 }
 
-// string id = 2;
+// int32 id = 2;
 inline void IAuthResponse::clear_id() {
-  _impl_.id_.ClearToEmpty();
+  _impl_.id_ = 0;
 }
-inline const std::string& IAuthResponse::id() const {
+inline int32_t IAuthResponse::_internal_id() const {
+  return _impl_.id_;
+}
+inline int32_t IAuthResponse::id() const {
   // @@protoc_insertion_point(field_get:IAuthResponse.id)
   return _internal_id();
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void IAuthResponse::set_id(ArgT0&& arg0, ArgT... args) {
- 
- _impl_.id_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+inline void IAuthResponse::_internal_set_id(int32_t value) {
+  
+  _impl_.id_ = value;
+}
+inline void IAuthResponse::set_id(int32_t value) {
+  _internal_set_id(value);
   // @@protoc_insertion_point(field_set:IAuthResponse.id)
-}
-inline std::string* IAuthResponse::mutable_id() {
-  std::string* _s = _internal_mutable_id();
-  // @@protoc_insertion_point(field_mutable:IAuthResponse.id)
-  return _s;
-}
-inline const std::string& IAuthResponse::_internal_id() const {
-  return _impl_.id_.Get();
-}
-inline void IAuthResponse::_internal_set_id(const std::string& value) {
-  
-  _impl_.id_.Set(value, GetArenaForAllocation());
-}
-inline std::string* IAuthResponse::_internal_mutable_id() {
-  
-  return _impl_.id_.Mutable(GetArenaForAllocation());
-}
-inline std::string* IAuthResponse::release_id() {
-  // @@protoc_insertion_point(field_release:IAuthResponse.id)
-  return _impl_.id_.Release();
-}
-inline void IAuthResponse::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
-    
-  } else {
-    
-  }
-  _impl_.id_.SetAllocated(id, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.id_.IsDefault()) {
-    _impl_.id_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:IAuthResponse.id)
 }
 
 #ifdef __GNUC__
