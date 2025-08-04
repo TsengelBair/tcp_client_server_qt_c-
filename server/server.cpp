@@ -72,6 +72,7 @@ void Server::slotProccesBuffer(qintptr socketDescriptor)
 
         /// данных в буффере достаточно либо даже больше, поэтому извлекаем ровно длину пакета
         QByteArray fullPacket = buffer.left(totalPacketSize);
+        buffer.remove(0, totalPacketSize);
 
         /// извлекаем контрольную сумму из пятого байта пакета, т.к. ниже сравним ее с фактической (посчитанной заново)
         uint8_t expectedCrc = PacketHandler::extractCrcFromPacket(fullPacket);
@@ -92,6 +93,10 @@ void Server::slotProccesBuffer(qintptr socketDescriptor)
 
             case MessageType::RequestType::REQUEST_LOGIN:
                 slotHandleAuthRequest(fullPacket.mid(6), socketDescriptor);
+                break;
+
+            default:
+                qDebug() << "Неизвестный тип запроса";
                 break;
         }
     }

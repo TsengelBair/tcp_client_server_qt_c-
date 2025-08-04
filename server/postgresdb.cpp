@@ -52,19 +52,24 @@ QPair<Db::AuthStatus, int> PostgresDb::authUser(const QString &login, const QStr
 {
     if (!m_db.isOpen()) return {Db::AuthDatabaseError, -1};
 
+    QSqlQuery query(m_db);
     try {
-        QSqlQuery query(m_db);
         query.prepare("SELECT id, password FROM users WHERE login = :login");
         query.bindValue(":login", login);
-        executeQuery(query);
+
+        if (!query.exec()) {
+            throw std::runtime_error(query.lastError().text().toStdString());
+        }
 
         if (!query.next()) {
             qDebug() << "User not found:" << login;
+            query.finish();
             return {Db::AuthUserNotFound, -1};
         }
 
         int userId = query.value(0).toInt();
         QString storedPassword = query.value(1).toString();
+        query.finish();
 
         if (!checkPasswords(password, storedPassword)) {
             qDebug() << "Invalid password for user:" << login;
@@ -73,13 +78,13 @@ QPair<Db::AuthStatus, int> PostgresDb::authUser(const QString &login, const QStr
 
         qDebug() << "User authenticated successfully:" << login;
         return {Db::AuthSuccess, userId};
-
-    } catch (const std::exception &e) {
+    }
+    catch (const std::exception &e) {
         qDebug() << "Authentication error:" << e.what();
+        if (query.isActive()) query.finish();
         return {Db::AuthDatabaseError, -1};
     }
 }
-
 bool PostgresDb::userExist(const QString &login)
 {
     if (!m_db.isOpen()) {
